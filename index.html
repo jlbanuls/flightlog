@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FlightLog - Gestor de Vuelos</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase.js"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/10.7.0/firebase.js"></script>
     <style>
         * {
             margin: 0;
@@ -1524,15 +1524,19 @@ const firebaseConfig = {
 };
 
 // Inicializar Firebase
-if (!window.firebase) {
-  console.error("Firebase no está cargado");
-} else {
-  firebase.initializeApp(firebaseConfig);
-  window.db = firebase.database();
-  console.log("Firebase configurado correctamente");
+function initFirebase() {
+  if (window.firebase) {
+    firebase.initializeApp(firebaseConfig);
+    window.db = firebase.database();
+    console.log("Firebase configurado correctamente");
+    const app = new FlightManager();
+  } else {
+    console.error("Firebase no está cargado");
+    setTimeout(initFirebase, 100);
+  }
 }
 
-const app = new FlightManager();
+document.addEventListener('DOMContentLoaded', initFirebase);
 
         // Add some sample data for testing
         if (app.flights.length === 0) {
