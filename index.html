@@ -1691,6 +1691,33 @@ app.syncToCloud = function() {
 
 console.log('✅ Firebase REST API inicializado');
 
+// Cargar datos de Firebase INMEDIATAMENTE al iniciar
+function loadFromFirebaseNow() {
+  fetch(FIREBASE_REST_URL)
+    .then(response => {
+      if (response.status === 404) {
+        console.log('📡 No data in Firebase yet, using local data');
+        return null;
+      }
+      return response.json();
+    })
+    .then(data => {
+      if (data && data.flights) {
+        console.log('📡 LOADED FROM FIREBASE:', { flights: data.flights.length });
+        app.flights = data.flights;
+        app.passengers = data.passengers || [];
+        app.render();
+        lastSyncData = JSON.stringify({ flights: app.flights, passengers: app.passengers });
+      }
+    })
+    .catch(error => {
+      console.log('📡 Could not load from Firebase, using local data');
+    });
+}
+
+// Cargar de Firebase al iniciar (después de un pequeño delay para asegurar que app está lista)
+setTimeout(loadFromFirebaseNow, 500);
+
 // Leer datos desde Firebase cada 3 segundos
 setInterval(() => {
   fetch(FIREBASE_REST_URL)
