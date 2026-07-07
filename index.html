@@ -1694,7 +1694,13 @@ console.log('✅ Firebase REST API inicializado');
 // Leer datos desde Firebase cada 3 segundos
 setInterval(() => {
   fetch(FIREBASE_REST_URL)
-    .then(response => response.json())
+    .then(response => {
+      if (response.status === 404) {
+        console.log('📡 No data in Firebase yet');
+        return null;
+      }
+      return response.json();
+    })
     .then(data => {
       if (data && data.flights && data.flights.length > app.flights.length) {
         console.log('📡 NEW DATA FROM FIREBASE:', { flights: data.flights.length });
@@ -1704,7 +1710,12 @@ setInterval(() => {
         lastSyncData = JSON.stringify({ flights: app.flights, passengers: app.passengers });
       }
     })
-    .catch(error => console.error('Error reading Firebase:', error));
+    .catch(error => {
+      // Ignorar errores de red, Firebase puede ser lento
+      if (error.message !== 'Failed to fetch') {
+        console.error('Error reading Firebase:', error.message);
+      }
+    });
 }, 3000);
 
         // Add some sample data for testing
