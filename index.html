@@ -1523,8 +1523,10 @@ const firebaseConfig = {
   appId: "1:4718803802228:web:2a17b34b093e4052feb111"
 };
 
+// Crear la aplicación
+const app = new FlightManager();
+
 // Inicializar Firebase cuando esté listo
-let app;
 window.addEventListener('load', function() {
   if (!window.firebase) {
     console.error("Firebase no está cargado");
@@ -1534,8 +1536,6 @@ window.addEventListener('load', function() {
   firebase.initializeApp(firebaseConfig);
   window.db = firebase.database();
   console.log("Firebase configurado correctamente");
-
-  app = new FlightManager();
 });
 
         // Add some sample data for testing
