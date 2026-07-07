@@ -1810,11 +1810,9 @@ const preloadedFlights = [
   }
 ];
 
-// Cargar datos precargados en la app PRIMERO
+// Cargar datos precargados EN MEMORIA SOLAMENTE (no en localStorage)
 app.passengers = preloadedPassengers;
 app.flights = preloadedFlights;
-app.saveToStorage('passengers', preloadedPassengers);
-app.saveToStorage('flights', preloadedFlights);
 
 // Cargar datos de Firebase INMEDIATAMENTE al iniciar
 function loadFromFirebaseNow() {
