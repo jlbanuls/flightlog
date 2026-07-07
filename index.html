@@ -929,18 +929,19 @@
             }
 
             syncToCloud() {
-                // TODO: Replace with your actual API endpoint
-                // Example:
-                // fetch('https://your-api.com/sync', {
-                //     method: 'POST',
-                //     headers: { 'Content-Type': 'application/json' },
-                //     body: JSON.stringify({
-                //         flights: this.flights,
-                //         passengers: this.passengers,
-                //         timestamp: new Date().toISOString()
-                //     })
-                // });
-                console.log('Data synced to cloud:', { flights: this.flights, passengers: this.passengers });
+                if (window.db) {
+                    window.db.ref('flightlog').set({
+                        flights: this.flights,
+                        passengers: this.passengers,
+                        timestamp: new Date().toISOString()
+                    }).then(() => {
+                        console.log('Data synced to cloud:', { flights: this.flights, passengers: this.passengers });
+                    }).catch((error) => {
+                        console.error('Error syncing to cloud:', error);
+                    });
+                } else {
+                    console.log('Data synced to cloud:', { flights: this.flights, passengers: this.passengers });
+                }
             }
 
             initializeEventListeners() {
@@ -1532,6 +1533,17 @@ function initFirebaseWhenReady() {
     firebase.initializeApp(firebaseConfig);
     window.db = firebase.database();
     console.log("Firebase configurado correctamente");
+
+    // Escuchar cambios en tiempo real
+    window.db.ref('flightlog').on('value', (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        app.flights = data.flights || [];
+        app.passengers = data.passengers || [];
+        app.render();
+        console.log('Data received from Firebase:', data);
+      }
+    });
   } else if (typeof firebase === 'undefined') {
     // Reintentar en 100ms
     setTimeout(initFirebaseWhenReady, 100);
