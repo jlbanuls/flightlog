@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase Configuration Helper - FlightLog</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .instruction-box {
+            background: #f0f4ff;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+        }
+
+        .instruction-box h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .instruction-box p {
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .instruction-box ol {
+            margin-left: 20px;
+            color: #555;
+            line-height: 1.8;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: monospace;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .output-box {
+            background: #f5f5f5;
+            border: 2px solid #e0e0e0;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .output-box.active {
+            display: block;
+        }
+
+        .output-box h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .output-box code {
+            background: #333;
+            color: #4ade80;
+            padding: 15px;
+            border-radius: 6px;
+            display: block;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .copy-btn {
+            background: #4ade80;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .copy-btn:hover {
+            background: #22c55e;
+        }
+
+        .copy-btn.copied {
+            background: #6366f1;
+        }
+
+        .success-message {
+            background: #dcfce7;
+            border-left: 4px solid #22c55e;
+            padding: 15px;
+            border-radius: 6px;
+            color: #166534;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+        .step-indicator {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .step {
+            background: #f0f0f0;
+            color: #666;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .step.active {
+            background: #667eea;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Firebase Configuration Helper</h1>
+        <p class="subtitle">FlightLog - Configurador de Firebase</p>
+
+        <div class="step-indicator">
+            <div class="step active">1. Obtener credenciales</div>
+            <div class="step">2. Rellenar datos</div>
+            <div class="step">3. Copiar código</div>
+        </div>
+
+        <div class="instruction-box">
+            <h3>📋 Instrucciones para obtener tu configuración de Firebase:</h3>
+            <ol>
+                <li>Ve a <strong>https://console.firebase.google.com</strong></li>
+                <li>Selecciona tu proyecto <strong>"flightlog"</strong></li>
+                <li>Haz clic en el engranaje (⚙️) → <strong>"Configuración del proyecto"</strong></li>
+                <li>Ve a la pestaña <strong>"Mi aplicaciones"</strong></li>
+                <li>Busca tu app web y haz clic en el icono de código <strong>{}</strong></li>
+                <li>Copia el objeto <strong>firebaseConfig</strong></li>
+                <li><strong>Pega aquí abajo</strong> cada valor en su campo</li>
+            </ol>
+        </div>
+
+        <form id="firebaseForm">
+            <div class="form-group">
+                <label for="apiKey">API Key *</label>
+                <input type="text" id="apiKey" placeholder="AIzaSyD..." required>
+            </div>
+
+            <div class="form-group">
+                <label for="authDomain">Auth Domain *</label>
+                <input type="text" id="authDomain" placeholder="flightlog-xxxxx.firebaseapp.com" required>
+            </div>
+
+            <div class="form-group">
+                <label for="databaseURL">Database URL *</label>
+                <input type="text" id="databaseURL" placeholder="https://flightlog-xxxxx.firebaseio.com" required>
+            </div>
+
+            <div class="form-group">
+                <label for="projectId">Project ID *</label>
+                <input type="text" id="projectId" placeholder="flightlog-xxxxx" required>
+            </div>
+
+            <div class="form-group">
+                <label for="storageBucket">Storage Bucket *</label>
+                <input type="text" id="storageBucket" placeholder="flightlog-xxxxx.appspot.com" required>
+            </div>
+
+            <div class="form-group">
+                <label for="messagingSenderId">Messaging Sender ID *</label>
+                <input type="text" id="messagingSenderId" placeholder="123456789" required>
+            </div>
+
+            <div class="form-group">
+                <label for="appId">App ID *</label>
+                <input type="text" id="appId" placeholder="1:123456789:web:abcdef..." required>
+            </div>
+
+            <div class="button-group">
+                <button type="submit" class="btn-primary">Generar Código</button>
+                <button type="reset" class="btn-secondary">Limpiar</button>
+            </div>
+        </form>
+
+        <div class="output-box" id="outputBox">
+            <h3>✅ Código para pegar en index.html:</h3>
+            <code id="codeOutput"></code>
+            <button class="copy-btn" onclick="copyCode()">📋 Copiar Código</button>
+            <div class="success-message" id="successMsg">
+                ✅ Código copiado al portapapeles
+            </div>
+
+            <h3 style="margin-top: 20px;">📝 Dónde pegar:</h3>
+            <p style="color: #666; margin-top: 10px;">
+                Abre <strong>index.html</strong> y busca esta línea (casi al final):
+            </p>
+            <code style="margin-top: 10px;">const app = new FlightManager();</code>
+            <p style="color: #666; margin-top: 15px;">
+                <strong>Reemplázala</strong> por el código de arriba (completo)
+            </p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('firebaseForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const config = {
+                apiKey: document.getElementById('apiKey').value,
+                authDomain: document.getElementById('authDomain').value,
+                databaseURL: document.getElementById('databaseURL').value,
+                projectId: document.getElementById('projectId').value,
+                storageBucket: document.getElementById('storageBucket').value,
+                messagingSenderId: document.getElementById('messagingSenderId').value,
+                appId: document.getElementById('appId').value
+            };
+
+            const code = `// ===============================
+// CONFIGURACIÓN DE FIREBASE
+// ===============================
+const firebaseConfig = {
+  apiKey: "${config.apiKey}",
+  authDomain: "${config.authDomain}",
+  databaseURL: "${config.databaseURL}",
+  projectId: "${config.projectId}",
+  storageBucket: "${config.storageBucket}",
+  messagingSenderId: "${config.messagingSenderId}",
+  appId: "${config.appId}"
+};
+
+// Inicializar Firebase
+if (!window.firebase) {
+  console.error("Firebase no está cargado");
+} else {
+  firebase.initializeApp(firebaseConfig);
+  window.db = firebase.database();
+  console.log("Firebase configurado correctamente");
+}
+
+const app = new FlightManager();`;
+
+            document.getElementById('codeOutput').textContent = code;
+            document.getElementById('outputBox').classList.add('active');
+        });
+
+        function copyCode() {
+            const code = document.getElementById('codeOutput').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                const btn = event.target;
+                const msg = document.getElementById('successMsg');
+                btn.classList.add('copied');
+                btn.textContent = '✅ Copiado!';
+                msg.classList.add('show');
+
+                setTimeout(() => {
+                    btn.classList.remove('copied');
+                    btn.textContent = '📋 Copiar Código';
+                    msg.classList.remove('show');
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>
