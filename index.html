@@ -1529,36 +1529,45 @@ const firebaseConfig = {
 const app = new FlightManager();
 
 // Inicializar Firebase cuando esté disponible
+let firebaseRetries = 0;
+const MAX_FIREBASE_RETRIES = 50; // 5 segundos máximo (50 * 100ms)
+
 function initFirebaseWhenReady() {
-  console.log('🔍 Checking Firebase availability...');
+  firebaseRetries++;
 
   if (typeof firebase === 'undefined') {
-    console.log('⏳ Firebase not loaded yet, retrying in 100ms...');
-    setTimeout(initFirebaseWhenReady, 100);
+    if (firebaseRetries < MAX_FIREBASE_RETRIES) {
+      setTimeout(initFirebaseWhenReady, 100);
+    } else {
+      console.error('❌ Firebase script failed to load after 5 seconds');
+    }
     return;
   }
 
-  console.log('✅ Firebase loaded, checking apps...');
+  console.log('✅ Firebase script loaded');
 
   if (!firebase.apps || firebase.apps.length === 0) {
-    console.log('📱 Initializing Firebase app...');
-    firebase.initializeApp(firebaseConfig);
-    window.db = firebase.database();
-    console.log("✅ Firebase configurado correctamente");
+    try {
+      firebase.initializeApp(firebaseConfig);
+      window.db = firebase.database();
+      console.log("✅ Firebase configurado correctamente");
 
-    // Escuchar cambios en tiempo real
-    window.db.ref('flightlog').on('value', (snapshot) => {
-      const data = snapshot.val();
-      console.log('📡 Firebase listener triggered:', data ? 'Data received' : 'No data');
-      if (data && (data.flights || data.passengers)) {
-        app.flights = data.flights || [];
-        app.passengers = data.passengers || [];
-        console.log('🔄 Updating app with Firebase data:', app.flights.length, 'flights');
-        app.render();
-      }
-    }, (error) => {
-      console.error('❌ Firebase listener error:', error);
-    });
+      // Escuchar cambios en tiempo real
+      window.db.ref('flightlog').on('value', (snapshot) => {
+        const data = snapshot.val();
+        console.log('📡 Firebase listener triggered:', data ? 'Data received' : 'No data');
+        if (data && (data.flights || data.passengers)) {
+          app.flights = data.flights || [];
+          app.passengers = data.passengers || [];
+          console.log('🔄 Updating app with Firebase data:', app.flights.length, 'flights');
+          app.render();
+        }
+      }, (error) => {
+        console.error('❌ Firebase listener error:', error);
+      });
+    } catch (error) {
+      console.error('❌ Firebase initialization error:', error);
+    }
   } else {
     console.log('⚠️ Firebase already initialized');
     window.db = firebase.database();
