@@ -1745,8 +1745,19 @@ setInterval(() => {
     });
 }, 3000);
 
-        // Los datos ahora vienen de Firebase, no se cargan datos de muestra
-        // app.render() se ejecutará cuando Firebase cargue los datos
+        // Datos de muestra mínimos (solo si no hay datos en Firebase)
+        if (app.flights.length === 0 && app.passengers.length === 0) {
+            app.passengers = [
+                { id: '1', name: 'Gema', email: 'gema@example.com', createdAt: new Date().toISOString() },
+                { id: '2', name: 'Jose', email: 'jose@example.com', createdAt: new Date().toISOString() },
+                { id: '3', name: 'Daniel', email: 'daniel@example.com', createdAt: new Date().toISOString() },
+                { id: '5', name: 'Sofía', email: 'sofia@example.com', createdAt: new Date().toISOString() },
+                { id: '6', name: 'Oli', email: 'oli@example.com', createdAt: new Date().toISOString() }
+            ];
+            app.flights = [];
+            app.saveToStorage('passengers', app.passengers);
+            app.saveToStorage('flights', app.flights);
+        }
     </script>
 
     <!-- JAVASCRIPT PARA LOGIN -->
