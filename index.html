@@ -1745,16 +1745,89 @@ setInterval(() => {
     });
 }, 3000);
 
-        // Datos de muestra mínimos (solo si no hay datos en Firebase)
+        // Datos de muestra precargados (solo si no hay datos en Firebase)
         if (app.flights.length === 0 && app.passengers.length === 0) {
             app.passengers = [
                 { id: '1', name: 'Gema', email: 'gema@example.com', createdAt: new Date().toISOString() },
                 { id: '2', name: 'Jose', email: 'jose@example.com', createdAt: new Date().toISOString() },
-                { id: '3', name: 'Daniel', email: 'daniel@example.com', createdAt: new Date().toISOString() },
-                { id: '5', name: 'Sofía', email: 'sofia@example.com', createdAt: new Date().toISOString() },
-                { id: '6', name: 'Oli', email: 'oli@example.com', createdAt: new Date().toISOString() }
+                { id: '3', name: 'Inés', email: 'ines@example.com', createdAt: new Date().toISOString() },
+                { id: '4', name: 'Sofía', email: 'sofia@example.com', createdAt: new Date().toISOString() },
+                { id: '5', name: 'Oli', email: 'oli@example.com', createdAt: new Date().toISOString() }
             ];
-            app.flights = [];
+
+            app.flights = [
+                {
+                    id: 'VY1378',
+                    date: '2026-07-16',
+                    origin: 'RTM',
+                    destination: 'ALC',
+                    airline: 'Vueling',
+                    departureTime: '20:55',
+                    arrivalTime: '23:45',
+                    flightNumber: 'VY1378',
+                    pnr: 'SD5LUR',
+                    passengerIds: ['1', '2', '3', '5'],
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                },
+                {
+                    id: 'VY1304',
+                    date: '2026-07-17',
+                    origin: 'BCN',
+                    destination: 'ALC',
+                    airline: 'Vueling',
+                    departureTime: '19:20',
+                    arrivalTime: '20:35',
+                    flightNumber: 'VY1304',
+                    pnr: 'QK78SM',
+                    passengerIds: ['1', '4'],
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                },
+                {
+                    id: 'VY1377',
+                    date: '2026-08-29',
+                    origin: 'ALC',
+                    destination: 'AMS',
+                    airline: 'Vueling',
+                    departureTime: '06:10',
+                    arrivalTime: '09:00',
+                    flightNumber: 'VY1377',
+                    pnr: 'PKB4XM',
+                    passengerIds: ['2', '3', '4', '5'],
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                },
+                {
+                    id: 'KL1501',
+                    date: '2026-09-18',
+                    origin: 'AMS',
+                    destination: 'MAD',
+                    airline: 'KLM',
+                    departureTime: '07:00',
+                    arrivalTime: '09:30',
+                    flightNumber: 'KL1501',
+                    pnr: 'ZPXMBK',
+                    passengerIds: ['1', '2', '3', '4'],
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                },
+                {
+                    id: 'UX1091',
+                    date: '2026-09-20',
+                    origin: 'MAD',
+                    destination: 'AMS',
+                    airline: 'Air Europa',
+                    departureTime: '07:00',
+                    arrivalTime: '09:40',
+                    flightNumber: 'UX1091',
+                    pnr: '7R5CRT',
+                    passengerIds: ['2', '3', '4'],
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                }
+            ];
+
             app.saveToStorage('passengers', app.passengers);
             app.saveToStorage('flights', app.flights);
         }
