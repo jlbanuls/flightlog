@@ -19,6 +19,101 @@
             color: #333;
         }
 
+        /* LOGIN SCREEN */
+        #loginScreen {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #FF6B35 0%, #004E89 100%);
+            z-index: 1000;
+        }
+
+        #loginScreen.hidden {
+            display: none;
+        }
+
+        .login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .login-container h1 {
+            color: #FF6B35;
+            margin-bottom: 10px;
+            font-size: 32px;
+        }
+
+        .login-container p {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+
+        .login-input {
+            width: 100%;
+            padding: 15px;
+            font-size: 24px;
+            text-align: center;
+            letter-spacing: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .login-input:focus {
+            outline: none;
+            border-color: #FF6B35;
+        }
+
+        .login-button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #FF6B35 0%, #004E89 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .login-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .login-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .login-error {
+            color: #e74c3c;
+            margin-top: 10px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .login-error.show {
+            display: block;
+        }
+
+        #appContainer {
+            display: none;
+        }
+
+        #appContainer.visible {
+            display: block;
+        }
+
         /* HEADER */
         header {
             background: linear-gradient(135deg, #FF6B35 0%, #004E89 100%);
@@ -740,6 +835,19 @@
     </style>
 </head>
 <body>
+    <!-- LOGIN SCREEN -->
+    <div id="loginScreen">
+        <div class="login-container">
+            <h1>🔐 FlightLog</h1>
+            <p>Ingresa el código de acceso (4 dígitos)</p>
+            <input type="password" id="loginInput" class="login-input" placeholder="0000" maxlength="4">
+            <button class="login-button" onclick="checkPassword()">Acceder</button>
+            <div class="login-error" id="loginError">Código incorrecto</div>
+        </div>
+    </div>
+
+    <!-- APP CONTAINER -->
+    <div id="appContainer">
     <!-- HEADER -->
     <header>
         <div class="header-content">
@@ -901,6 +1009,7 @@
             </form>
         </div>
     </div>
+    </div><!-- Cierre de appContainer -->
 
     <script>
         // ============================================
@@ -1651,6 +1760,53 @@ setInterval(() => {
             app.saveToStorage('passengers', samplePassengers);
             app.saveToStorage('flights', sampleFlights);
             app.render();
+        }
+    </script>
+
+    <!-- JAVASCRIPT PARA LOGIN -->
+    <script>
+        // Contraseña: 1234
+        const PASSWORD = '1234';
+
+        // Verificar si ya hay sesión
+        window.addEventListener('load', () => {
+            if (sessionStorage.getItem('authenticated') === 'true') {
+                showApp();
+            } else {
+                document.getElementById('loginInput').focus();
+            }
+        });
+
+        // Permitir Enter en el input
+        document.getElementById('loginInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                checkPassword();
+            }
+        });
+
+        function checkPassword() {
+            const input = document.getElementById('loginInput');
+            const error = document.getElementById('loginError');
+
+            if (input.value === PASSWORD) {
+                sessionStorage.setItem('authenticated', 'true');
+                error.classList.remove('show');
+                showApp();
+            } else {
+                error.classList.add('show');
+                input.value = '';
+                input.focus();
+            }
+        }
+
+        function showApp() {
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('appContainer').classList.add('visible');
+        }
+
+        function logout() {
+            sessionStorage.removeItem('authenticated');
+            location.reload();
         }
     </script>
 </body>
