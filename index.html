@@ -930,17 +930,18 @@
 
             syncToCloud() {
                 if (window.db) {
+                    console.log('📤 Saving to Firebase:', { flights: this.flights.length, passengers: this.passengers.length });
                     window.db.ref('flightlog').set({
                         flights: this.flights,
                         passengers: this.passengers,
                         timestamp: new Date().toISOString()
                     }).then(() => {
-                        console.log('Data synced to cloud:', { flights: this.flights, passengers: this.passengers });
+                        console.log('✅ Data synced to cloud:', { flights: this.flights.length, passengers: this.passengers.length });
                     }).catch((error) => {
-                        console.error('Error syncing to cloud:', error);
+                        console.error('❌ Error syncing to cloud:', error);
                     });
                 } else {
-                    console.log('Data synced to cloud:', { flights: this.flights, passengers: this.passengers });
+                    console.log('⚠️ Firebase not available. Local save only:', { flights: this.flights.length, passengers: this.passengers.length });
                 }
             }
 
