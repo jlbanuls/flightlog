@@ -5,8 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FlightLog - Gestor de Vuelos</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.0/firebase-app.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.0/firebase-database.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -1533,71 +1531,48 @@ const firebaseConfig = {
 // Crear la aplicación
 const app = new FlightManager();
 
-// Inicializar Firebase cuando esté disponible
-let firebaseRetries = 0;
-const MAX_FIREBASE_RETRIES = 50; // 5 segundos máximo (50 * 100ms)
+// Firebase REST API URL
+const FIREBASE_REST_URL = firebaseConfig.databaseURL + '/flightlog.json';
 
-function initFirebaseWhenReady() {
-  firebaseRetries++;
+// Inicializar sincronización con Firebase REST API
+console.log('✅ Firebase REST API inicializado');
 
-  if (typeof firebase === 'undefined') {
-    if (firebaseRetries < MAX_FIREBASE_RETRIES) {
-      setTimeout(initFirebaseWhenReady, 100);
-    } else {
-      console.error('❌ Firebase script failed to load after 5 seconds');
-    }
-    return;
-  }
+// Sincronizar datos a la nube cada 2 segundos
+setInterval(() => {
+  const data = {
+    flights: app.flights,
+    passengers: app.passengers,
+    timestamp: new Date().toISOString()
+  };
 
-  console.log('✅ Firebase script loaded');
+  fetch(FIREBASE_REST_URL, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  })
+  .then(response => response.json())
+  .then(result => {
+    console.log('✅ FIREBASE SAVE SUCCESS:', { flights: app.flights.length, passengers: app.passengers.length });
+  })
+  .catch(error => {
+    console.error('❌ FIREBASE SAVE FAILED:', error);
+  });
+}, 2000);
 
-  if (!firebase.apps || firebase.apps.length === 0) {
-    try {
-      firebase.initializeApp(firebaseConfig);
-      window.db = firebase.database();
-      console.log("✅ Firebase configurado correctamente");
-
-      // Escuchar cambios en tiempo real
-      window.db.ref('flightlog').on('value', (snapshot) => {
-        const data = snapshot.val();
-        console.log('📡 Firebase listener triggered:', data ? 'Data received' : 'No data');
-        if (data && (data.flights || data.passengers)) {
-          app.flights = data.flights || [];
-          app.passengers = data.passengers || [];
-          console.log('🔄 Updating app with Firebase data:', app.flights.length, 'flights');
-          app.render();
-        }
-      }, (error) => {
-        console.error('❌ Firebase listener error:', error);
-      });
-
-      // Polling adicional cada 2 segundos como respaldo
-      setInterval(() => {
-        window.db.ref('flightlog').once('value', (snapshot) => {
-          const data = snapshot.val();
-          if (data && data.flights && data.flights.length > app.flights.length) {
-            console.log('🔄 Polling: Detected new flights from Firebase');
-            app.flights = data.flights;
-            app.passengers = data.passengers || [];
-            app.render();
-          }
-        });
-      }, 2000);
-    } catch (error) {
-      console.error('❌ Firebase initialization error:', error);
-    }
-  } else {
-    console.log('⚠️ Firebase already initialized');
-    window.db = firebase.database();
-  }
-}
-
-// Esperar a que el DOM esté listo
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initFirebaseWhenReady);
-} else {
-  initFirebaseWhenReady();
-}
+// Leer datos desde Firebase cada 3 segundos
+setInterval(() => {
+  fetch(FIREBASE_REST_URL)
+    .then(response => response.json())
+    .then(data => {
+      if (data && data.flights && data.flights.length > app.flights.length) {
+        console.log('📡 NEW DATA FROM FIREBASE:', { flights: data.flights.length });
+        app.flights = data.flights;
+        app.passengers = data.passengers || [];
+        app.render();
+      }
+    })
+    .catch(error => console.error('Error reading Firebase:', error));
+}, 3000);
 
         // Add some sample data for testing
         if (app.flights.length === 0) {
