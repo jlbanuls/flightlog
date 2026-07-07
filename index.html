@@ -1844,6 +1844,8 @@ function loadFromFirebaseNow() {
         console.log('📡 LOADED FROM FIREBASE:', { flights: data.flights.length });
         app.flights = data.flights;
         app.passengers = data.passengers || [];
+        app.saveToStorage('flights', app.flights);
+        app.saveToStorage('passengers', app.passengers);
         app.render();
         lastSyncData = JSON.stringify({ flights: app.flights, passengers: app.passengers });
       } else {
@@ -1876,6 +1878,8 @@ setInterval(() => {
         console.log('📡 NEW DATA FROM FIREBASE:', { flights: data.flights.length });
         app.flights = data.flights;
         app.passengers = data.passengers || [];
+        app.saveToStorage('flights', app.flights);
+        app.saveToStorage('passengers', app.passengers);
         app.render();
         lastSyncData = JSON.stringify({ flights: app.flights, passengers: app.passengers });
       }
