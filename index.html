@@ -1511,7 +1511,29 @@
         }
 
         // Initialize the app
-        const app = new FlightManager();
+        // ===============================
+// CONFIGURACIÓN DE FIREBASE
+// ===============================
+const firebaseConfig = {
+  apiKey: "AIzaSyBIA67KLV3G1jmWFZ_VN-GFmKHyuby6xXA",
+  authDomain: "flightlog-e7c30.firebaseapp.com",
+  databaseURL: "https://flightlog-e7c30-default-rtdb.europe-west1.firebasedatabase...",
+  projectId: "flightlog-e7c30",
+  storageBucket: "flightlog-e7c30.firebasestorage.app",
+  messagingSenderId: "4718803802228",
+  appId: "1:4718803802228:web:2a17b34b093e4052feb111"
+};
+
+// Inicializar Firebase
+if (!window.firebase) {
+  console.error("Firebase no está cargado");
+} else {
+  firebase.initializeApp(firebaseConfig);
+  window.db = firebase.database();
+  console.log("Firebase configurado correctamente");
+}
+
+const app = new FlightManager();
 
         // Add some sample data for testing
         if (app.flights.length === 0) {
