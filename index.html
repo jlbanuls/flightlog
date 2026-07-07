@@ -880,7 +880,8 @@
         <div class="filters">
             <div class="filter-group">
                 <label for="filterPassenger">Buscar por Pasajero</label>
-                <input type="text" id="filterPassenger" placeholder="Nombre del pasajero">
+                <input type="text" id="filterPassenger" placeholder="Nombre del pasajero" list="passengerList">
+                <datalist id="passengerList"></datalist>
             </div>
             <div class="filter-group">
                 <label for="filterDestination">Buscar por Destino</label>
@@ -1442,6 +1443,13 @@
                 }, 100);
             }
 
+            updatePassengerDatalist() {
+                const datalist = document.getElementById('passengerList');
+                datalist.innerHTML = this.passengers
+                    .map(p => `<option value="${p.name}">`)
+                    .join('');
+            }
+
             getFilteredFlights() {
                 let filtered = [...this.flights];
 
@@ -1524,6 +1532,7 @@
             }
 
             render() {
+                this.updatePassengerDatalist();
                 const container = document.getElementById('flightsContainer');
                 const flights = this.getFilteredFlights();
 
@@ -1768,6 +1777,34 @@ const preloadedFlights = [
     flightNumber: 'UX1091',
     pnr: '7R5CRT',
     passengerIds: ['2', '3', '4'],
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'KL1513',
+    date: '2026-07-10',
+    origin: 'AMS',
+    destination: 'BCN',
+    airline: 'KLM',
+    departureTime: '10:20',
+    arrivalTime: '12:30',
+    flightNumber: 'KL1513',
+    pnr: 'YI7M8Q',
+    passengerIds: ['2'],
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'HV6062',
+    date: '2026-07-13',
+    origin: 'BCN',
+    destination: 'RTM',
+    airline: 'Transavia',
+    departureTime: '16:40',
+    arrivalTime: '18:45',
+    flightNumber: 'HV6062',
+    pnr: 'PYNL9S',
+    passengerIds: ['2'],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   }
