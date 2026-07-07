@@ -1642,6 +1642,7 @@ const app = new FlightManager();
 
 // Firebase REST API URL
 const FIREBASE_REST_URL = firebaseConfig.databaseURL + '/flightlog.json';
+console.log('🔗 Firebase URL:', FIREBASE_REST_URL);
 
 // Variables para control de cambios
 let lastSyncData = JSON.stringify({ flights: app.flights, passengers: app.passengers });
