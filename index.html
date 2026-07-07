@@ -1640,8 +1640,9 @@ const firebaseConfig = {
 // Crear la aplicación
 const app = new FlightManager();
 
-// Firebase REST API URL
-const FIREBASE_REST_URL = firebaseConfig.databaseURL + '/flightlog.json';
+// Firebase REST API URL (añadir .json al final)
+const FIREBASE_DB_URL = firebaseConfig.databaseURL.replace(/\/$/, '');
+const FIREBASE_REST_URL = FIREBASE_DB_URL + '/flightlog.json?print=pretty';
 console.log('🔗 Firebase URL:', FIREBASE_REST_URL);
 
 // Variables para control de cambios
