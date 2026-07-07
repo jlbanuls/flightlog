@@ -1534,11 +1534,21 @@ const app = new FlightManager();
 // Firebase REST API URL
 const FIREBASE_REST_URL = firebaseConfig.databaseURL + '/flightlog.json';
 
-// Inicializar sincronización con Firebase REST API
-console.log('✅ Firebase REST API inicializado');
+// Variables para control de cambios
+let lastSyncData = JSON.stringify({ flights: app.flights, passengers: app.passengers });
+let isSyncing = false;
 
-// Sincronizar datos a la nube cada 2 segundos
-setInterval(() => {
+// Función para guardar en Firebase (solo si hay cambios)
+function syncToFirebase() {
+  if (isSyncing) return;
+
+  const currentData = JSON.stringify({ flights: app.flights, passengers: app.passengers });
+
+  // Solo sincronizar si hay cambios
+  if (currentData === lastSyncData) return;
+
+  isSyncing = true;
+
   const data = {
     flights: app.flights,
     passengers: app.passengers,
@@ -1553,11 +1563,22 @@ setInterval(() => {
   .then(response => response.json())
   .then(result => {
     console.log('✅ FIREBASE SAVE SUCCESS:', { flights: app.flights.length, passengers: app.passengers.length });
+    lastSyncData = currentData;
+    isSyncing = false;
   })
   .catch(error => {
     console.error('❌ FIREBASE SAVE FAILED:', error);
+    isSyncing = false;
   });
-}, 2000);
+}
+
+// Reemplazar syncToCloud para usar Firebase REST
+const originalSyncToCloud = app.syncToCloud.bind(app);
+app.syncToCloud = function() {
+  syncToFirebase();
+};
+
+console.log('✅ Firebase REST API inicializado');
 
 // Leer datos desde Firebase cada 3 segundos
 setInterval(() => {
@@ -1569,6 +1590,7 @@ setInterval(() => {
         app.flights = data.flights;
         app.passengers = data.passengers || [];
         app.render();
+        lastSyncData = JSON.stringify({ flights: app.flights, passengers: app.passengers });
       }
     })
     .catch(error => console.error('Error reading Firebase:', error));
