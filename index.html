@@ -1691,13 +1691,114 @@ app.syncToCloud = function() {
 
 console.log('✅ Firebase REST API inicializado');
 
+// Datos de muestra precargados - DEFINIR PRIMERO
+const preloadedPassengers = [
+  { id: '1', name: 'Gema', email: 'gema@example.com', createdAt: new Date().toISOString() },
+  { id: '2', name: 'Jose', email: 'jose@example.com', createdAt: new Date().toISOString() },
+  { id: '3', name: 'Inés', email: 'ines@example.com', createdAt: new Date().toISOString() },
+  { id: '4', name: 'Sofía', email: 'sofia@example.com', createdAt: new Date().toISOString() },
+  { id: '5', name: 'Oli', email: 'oli@example.com', createdAt: new Date().toISOString() }
+];
+
+const preloadedFlights = [
+  {
+    id: 'VY1378',
+    date: '2026-07-16',
+    origin: 'RTM',
+    destination: 'ALC',
+    airline: 'Vueling',
+    departureTime: '20:55',
+    arrivalTime: '23:45',
+    flightNumber: 'VY1378',
+    pnr: 'SD5LUR',
+    passengerIds: ['1', '2', '3', '5'],
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'VY1304',
+    date: '2026-07-17',
+    origin: 'BCN',
+    destination: 'ALC',
+    airline: 'Vueling',
+    departureTime: '19:20',
+    arrivalTime: '20:35',
+    flightNumber: 'VY1304',
+    pnr: 'QK78SM',
+    passengerIds: ['1', '4'],
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'VY1377',
+    date: '2026-08-29',
+    origin: 'ALC',
+    destination: 'AMS',
+    airline: 'Vueling',
+    departureTime: '06:10',
+    arrivalTime: '09:00',
+    flightNumber: 'VY1377',
+    pnr: 'PKB4XM',
+    passengerIds: ['2', '3', '4', '5'],
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'KL1501',
+    date: '2026-09-18',
+    origin: 'AMS',
+    destination: 'MAD',
+    airline: 'KLM',
+    departureTime: '07:00',
+    arrivalTime: '09:30',
+    flightNumber: 'KL1501',
+    pnr: 'ZPXMBK',
+    passengerIds: ['1', '2', '3', '4'],
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'UX1091',
+    date: '2026-09-20',
+    origin: 'MAD',
+    destination: 'AMS',
+    airline: 'Air Europa',
+    departureTime: '07:00',
+    arrivalTime: '09:40',
+    flightNumber: 'UX1091',
+    pnr: '7R5CRT',
+    passengerIds: ['2', '3', '4'],
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  }
+];
+
+// Cargar datos precargados en la app PRIMERO
+app.passengers = preloadedPassengers;
+app.flights = preloadedFlights;
+app.saveToStorage('passengers', preloadedPassengers);
+app.saveToStorage('flights', preloadedFlights);
+
 // Cargar datos de Firebase INMEDIATAMENTE al iniciar
 function loadFromFirebaseNow() {
   fetch(FIREBASE_REST_URL)
     .then(response => {
       if (response.status === 404) {
-        console.log('📡 No data in Firebase yet, using local data');
-        return null;
+        console.log('📡 No data in Firebase yet, saving preloaded data...');
+        // Guardar datos precargados en Firebase
+        const data = {
+          flights: preloadedFlights,
+          passengers: preloadedPassengers,
+          timestamp: new Date().toISOString()
+        };
+        return fetch(FIREBASE_REST_URL, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        }).then(r => r.json()).then(() => {
+          console.log('✅ PRELOADED DATA SAVED TO FIREBASE');
+          return null;
+        });
       }
       return response.json();
     })
@@ -1708,10 +1809,15 @@ function loadFromFirebaseNow() {
         app.passengers = data.passengers || [];
         app.render();
         lastSyncData = JSON.stringify({ flights: app.flights, passengers: app.passengers });
+      } else {
+        // Si Firebase estaba vacío, renderizar datos precargados
+        app.render();
+        lastSyncData = JSON.stringify({ flights: app.flights, passengers: app.passengers });
       }
     })
     .catch(error => {
       console.log('📡 Could not load from Firebase, using local data');
+      app.render();
     });
 }
 
@@ -1744,93 +1850,6 @@ setInterval(() => {
       }
     });
 }, 3000);
-
-        // Datos de muestra precargados (solo si no hay datos en Firebase)
-        if (app.flights.length === 0 && app.passengers.length === 0) {
-            app.passengers = [
-                { id: '1', name: 'Gema', email: 'gema@example.com', createdAt: new Date().toISOString() },
-                { id: '2', name: 'Jose', email: 'jose@example.com', createdAt: new Date().toISOString() },
-                { id: '3', name: 'Inés', email: 'ines@example.com', createdAt: new Date().toISOString() },
-                { id: '4', name: 'Sofía', email: 'sofia@example.com', createdAt: new Date().toISOString() },
-                { id: '5', name: 'Oli', email: 'oli@example.com', createdAt: new Date().toISOString() }
-            ];
-
-            app.flights = [
-                {
-                    id: 'VY1378',
-                    date: '2026-07-16',
-                    origin: 'RTM',
-                    destination: 'ALC',
-                    airline: 'Vueling',
-                    departureTime: '20:55',
-                    arrivalTime: '23:45',
-                    flightNumber: 'VY1378',
-                    pnr: 'SD5LUR',
-                    passengerIds: ['1', '2', '3', '5'],
-                    createdAt: new Date().toISOString(),
-                    updatedAt: new Date().toISOString()
-                },
-                {
-                    id: 'VY1304',
-                    date: '2026-07-17',
-                    origin: 'BCN',
-                    destination: 'ALC',
-                    airline: 'Vueling',
-                    departureTime: '19:20',
-                    arrivalTime: '20:35',
-                    flightNumber: 'VY1304',
-                    pnr: 'QK78SM',
-                    passengerIds: ['1', '4'],
-                    createdAt: new Date().toISOString(),
-                    updatedAt: new Date().toISOString()
-                },
-                {
-                    id: 'VY1377',
-                    date: '2026-08-29',
-                    origin: 'ALC',
-                    destination: 'AMS',
-                    airline: 'Vueling',
-                    departureTime: '06:10',
-                    arrivalTime: '09:00',
-                    flightNumber: 'VY1377',
-                    pnr: 'PKB4XM',
-                    passengerIds: ['2', '3', '4', '5'],
-                    createdAt: new Date().toISOString(),
-                    updatedAt: new Date().toISOString()
-                },
-                {
-                    id: 'KL1501',
-                    date: '2026-09-18',
-                    origin: 'AMS',
-                    destination: 'MAD',
-                    airline: 'KLM',
-                    departureTime: '07:00',
-                    arrivalTime: '09:30',
-                    flightNumber: 'KL1501',
-                    pnr: 'ZPXMBK',
-                    passengerIds: ['1', '2', '3', '4'],
-                    createdAt: new Date().toISOString(),
-                    updatedAt: new Date().toISOString()
-                },
-                {
-                    id: 'UX1091',
-                    date: '2026-09-20',
-                    origin: 'MAD',
-                    destination: 'AMS',
-                    airline: 'Air Europa',
-                    departureTime: '07:00',
-                    arrivalTime: '09:40',
-                    flightNumber: 'UX1091',
-                    pnr: '7R5CRT',
-                    passengerIds: ['2', '3', '4'],
-                    createdAt: new Date().toISOString(),
-                    updatedAt: new Date().toISOString()
-                }
-            ];
-
-            app.saveToStorage('passengers', app.passengers);
-            app.saveToStorage('flights', app.flights);
-        }
     </script>
 
     <!-- JAVASCRIPT PARA LOGIN -->
