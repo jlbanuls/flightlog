@@ -1530,10 +1530,21 @@ const app = new FlightManager();
 
 // Inicializar Firebase cuando esté disponible
 function initFirebaseWhenReady() {
-  if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length === 0) {
+  console.log('🔍 Checking Firebase availability...');
+
+  if (typeof firebase === 'undefined') {
+    console.log('⏳ Firebase not loaded yet, retrying in 100ms...');
+    setTimeout(initFirebaseWhenReady, 100);
+    return;
+  }
+
+  console.log('✅ Firebase loaded, checking apps...');
+
+  if (!firebase.apps || firebase.apps.length === 0) {
+    console.log('📱 Initializing Firebase app...');
     firebase.initializeApp(firebaseConfig);
     window.db = firebase.database();
-    console.log("Firebase configurado correctamente");
+    console.log("✅ Firebase configurado correctamente");
 
     // Escuchar cambios en tiempo real
     window.db.ref('flightlog').on('value', (snapshot) => {
@@ -1548,9 +1559,9 @@ function initFirebaseWhenReady() {
     }, (error) => {
       console.error('❌ Firebase listener error:', error);
     });
-  } else if (typeof firebase === 'undefined') {
-    // Reintentar en 100ms
-    setTimeout(initFirebaseWhenReady, 100);
+  } else {
+    console.log('⚠️ Firebase already initialized');
+    window.db = firebase.database();
   }
 }
 
