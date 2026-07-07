@@ -1526,17 +1526,24 @@ const firebaseConfig = {
 // Crear la aplicación
 const app = new FlightManager();
 
-// Inicializar Firebase cuando esté listo
-window.addEventListener('load', function() {
-  if (!window.firebase) {
-    console.error("Firebase no está cargado");
-    return;
+// Inicializar Firebase cuando esté disponible
+function initFirebaseWhenReady() {
+  if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length === 0) {
+    firebase.initializeApp(firebaseConfig);
+    window.db = firebase.database();
+    console.log("Firebase configurado correctamente");
+  } else if (typeof firebase === 'undefined') {
+    // Reintentar en 100ms
+    setTimeout(initFirebaseWhenReady, 100);
   }
+}
 
-  firebase.initializeApp(firebaseConfig);
-  window.db = firebase.database();
-  console.log("Firebase configurado correctamente");
-});
+// Esperar a que el DOM esté listo
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initFirebaseWhenReady);
+} else {
+  initFirebaseWhenReady();
+}
 
         // Add some sample data for testing
         if (app.flights.length === 0) {
