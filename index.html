@@ -1538,12 +1538,15 @@ function initFirebaseWhenReady() {
     // Escuchar cambios en tiempo real
     window.db.ref('flightlog').on('value', (snapshot) => {
       const data = snapshot.val();
-      if (data) {
+      console.log('📡 Firebase listener triggered:', data ? 'Data received' : 'No data');
+      if (data && (data.flights || data.passengers)) {
         app.flights = data.flights || [];
         app.passengers = data.passengers || [];
+        console.log('🔄 Updating app with Firebase data:', app.flights.length, 'flights');
         app.render();
-        console.log('Data received from Firebase:', data);
       }
+    }, (error) => {
+      console.error('❌ Firebase listener error:', error);
     });
   } else if (typeof firebase === 'undefined') {
     // Reintentar en 100ms
